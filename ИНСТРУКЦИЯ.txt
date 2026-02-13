@@ -1,0 +1,10 @@
+How to run:
+
+Install Python 3.10 or higher.
+
+Run the following command in the terminal:
+
+ pip install -r requirements.txt
+
+
+To start the game, enter the command python level1_2.py
