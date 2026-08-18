@@ -1,0 +1,31 @@
+services:
+  app:
+    build: .
+    ports: ["3000:3000"]
+    env_file: .env
+    depends_on:
+      db: {condition: service_healthy}
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: qolbar
+      POSTGRES_PASSWORD: qolbar_change_me
+      POSTGRES_DB: qolbar
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./server/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U qolbar -d qolbar"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  trainer:
+    build:
+      context: .
+      dockerfile: training/Dockerfile
+    profiles: ["training"]
+    working_dir: /workspace/training
+    volumes:
+      - .:/workspace
+volumes:
+  postgres_data:

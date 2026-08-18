@@ -1,0 +1,4 @@
+tensorflow==2.15.1
+tensorflowjs==4.22.0
+pandas>=2.2
+numpy>=1.26,<2

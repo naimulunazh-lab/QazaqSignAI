@@ -1,0 +1,8 @@
+.env
+node_modules/
+training/__pycache__/
+models/gesture-classifier/*.bin
+models/gesture-classifier/model.json
+models/gesture-classifier/classifier.keras
+dataset/recordings/
+dataset/sequences.npz

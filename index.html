@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0d5c55">
+  <title>QazaqSign AI — Қазақ ым тілі</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;600;700&display=swap" rel="stylesheet">
+  <!-- The recognizer adapter uses the same MediaPipe Hands runtime as the supplied prototype. -->
+  <script src="/vendor/mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="/vendor/mediapipe/drawing_utils/drawing_utils.js"></script>
+  <script src="/vendor/mediapipe/holistic/holistic.js"></script>
+  <!-- Optional. Loaded only to run a locally exported trained classifier; the app falls back safely otherwise. -->
+  <script src="/vendor/tfjs/tf.min.js"></script>
+  <link rel="stylesheet" href="assets/styles.css">
+  <link rel="stylesheet" href="assets/auth.css">
+  <link rel="stylesheet" href="assets/song-learning.css">
+</head>
+<body>
+  <div class="ornament ornament-left" aria-hidden="true"></div><div class="ornament ornament-right" aria-hidden="true"></div>
+  <main class="app-shell">
+    <header class="topbar">
+      <button class="brand" id="homeButton" aria-label="Басты бетке оралу"><span class="brand-mark">Қ</span><span>QAZAQSIGN <span class="accent-dot">AI</span></span></button>
+      <nav aria-label="Негізгі навигация"><button data-nav="learn" class="nav-link active">Үйрену</button><button data-nav="songs" class="nav-link">Әуен</button><button data-nav="progress" class="nav-link">Прогресс</button></nav>
+      <div class="streak"><span>🔥</span><b id="streakValue">4</b><small>күн қатарынан</small></div>
+    </header>
+
+    <section id="homeView" class="view active">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">ҚАЗАҚ ЫМ ТІЛІ • AI КӨМЕКШІСІ</p>
+          <h1>Қолыңмен сөйле.<br><em>Жүрекпен түсін.</em></h1>
+          <p class="hero-text">Қазақ ым тілін қысқа сабақтар, камералық тәжірибе және музыка арқылы өз ырғағыңда үйрен.</p>
+          <div class="hero-actions"><button id="continueButton" class="button primary">Жалғастыру <span>→</span></button><button id="cameraButton" class="button ghost">◉ Камераны сынау</button></div>
+          <div class="today-card"><span class="round-icon">✦</span><div><small>БҮГІНГІ МАҚСАТ</small><strong>«Сәлем» қимылын бекіту</strong><div class="progress-line"><i style="width:66%"></i></div></div><b>66%</b></div>
+        </div>
+        <aside class="hero-visual" aria-label="Қол қимылын үйрену иллюстрациясы">
+          <div class="sun-disc"></div><div class="knot k1">✦</div><div class="knot k2">✦</div>
+          <div class="hand-card"><span class="lesson-tag">01 / ӘЛІПБИ</span><div class="hand-illustration">🤟</div><strong>«Ә» әрпі</strong><small>Қол пішінін қайтала</small><div class="stroke"></div></div>
+          <div class="floating-score"><span>AI БАҒА</span><b>92%</b><i>● Жақсы</i></div>
+        </aside>
+      </div>
+      <section class="section-head"><div><p class="eyebrow">ОҚУ ЖОЛЫ</p><h2>Бүгін неден бастаймыз?</h2></div><p>Әр деңгей — шағын жеңістерге бөлінген нақты дағды.</p></section>
+      <div id="levelGrid" class="level-grid"></div>
+    </section>
+
+    <section id="lessonView" class="view lesson-view">
+      <button class="back-button" data-back>← Оқу жолына</button>
+      <div class="lesson-layout">
+        <aside class="lesson-info"><p class="eyebrow" id="lessonEyebrow">01 / ӘЛІПБИ</p><h2 id="lessonTitle">Әріптер әлемі</h2><p id="lessonDescription"></p><div id="sublessonList" class="sublesson-list"></div></aside>
+        <div class="practice-stage">
+          <div class="stage-top"><span id="exerciseStep">1 / 3 жаттығу</span><div class="stage-progress"><i id="stageProgress"></i></div><button id="skipExercise" class="text-button">Өткізу</button></div>
+          <div class="gesture-demo"><div class="gesture-rings"></div><span class="demo-label">ҮЛГІ ЖЕСТ</span><div id="gestureEmoji" class="gesture-emoji">👋</div><h3 id="exercisePrompt">«Сәлем» қимылын көрсет</h3><p id="exerciseHint">Алақаныңды ашып, қасыңа жақын ұста.</p></div>
+          <div class="camera-preview"><video id="inputVideo" autoplay playsinline muted></video><canvas id="handCanvas"></canvas><div id="cameraEmpty" class="camera-empty"><span>⌁</span><p>Камера өшірулі</p></div><div class="camera-status"><i></i><span id="cameraStatus">Камераны қосыңыз</span></div></div>
+          <div class="feedback-panel"><div><span id="feedbackLabel">AI КЕРІ БАЙЛАНЫС</span><strong id="feedbackText">Камераны қосып, қимылды қайталаңыз</strong></div><div class="accuracy"><b id="accuracyValue">—</b><small>дәлдік</small></div></div>
+          <div class="stage-actions"><button id="startPractice" class="button primary">Камераны қосу</button><button id="checkGesture" class="button dark" disabled>Қимылды бағалау</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="songsView" class="view">
+      <div class="songs-hero"><div><p class="eyebrow">ӘУЕНМЕН ҮЙРЕНУ</p><h1>Ырғақпен<br><em>ымда.</em></h1><p>Танымал әндердің үзінділерін ыммен жеткізуді үйрен. Әуен ырғағы мен қимылдар сені бірге жетелейді.</p></div><div class="music-note">♪</div></div>
+      <div id="songGrid" class="song-grid"></div>
+    </section>
+
+    <section id="songLessonView" class="view song-lesson-view">
+      <button class="back-button" id="backToSongs">← Әуендерге оралу</button>
+      <div class="song-learning-head"><div><p class="eyebrow">ӘУЕНМЕН ЫМДАУ</p><h1 id="songLessonTitle">Әнді үйрену</h1><p id="songLessonArtist"></p></div><a id="songSourceLink" class="source-link" target="_blank" rel="noopener">YouTube-та ашу ↗</a></div>
+      <div class="song-learning-grid"><div class="song-video"><iframe id="songVideo" title="Ым тіліндегі ән бейнесі" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe><p>Бейнені қарап, әр бөлімді қысқа фрагменттермен қайталаңыз.</p></div><aside class="song-steps"><span class="lesson-tag">ОҚУ БӨЛІМДЕРІ</span><div id="songSectionList"></div></aside></div>
+      <section class="lyrics-practice"><div><p class="eyebrow" id="songSectionTitle">1-БӨЛІМ</p><h2 id="songPracticeTitle">Жолдарды ыммен қайтала</h2><div id="songLyrics" class="song-lyrics"></div></div><aside class="song-practice-card"><span>ЖАТТЫҒУ ТӘРТІБІ</span><ol><li>Бейнеден фрагментті көр.</li><li>Ырғақты тоқтатып, ымды қайтала.</li><li>Камерамен тәжірибеге өт.</li></ol><button id="songCameraPractice" class="button primary">Осы фрагментті жаттықтыру</button></aside></section>
+    </section>
+
+    <section id="progressView" class="view">
+      <div class="section-head"><div><p class="eyebrow">СЕНІҢ ЖОЛЫҢ</p><h1>Әр қимыл —<br><em>алға қадам.</em></h1></div><p>Бүгінгі көңіл-күйің тамаша. Тағы бір сабақ — жаңа белес.</p></div>
+      <div class="stats-grid"><article><span>ЖАЛПЫ ДӘЛДІК</span><b id="overallAccuracy">88%</b><small>↗ 6% осы аптада</small></article><article><span>ҮЙРЕНГЕН ЖЕСТ</span><b id="gesturesLearned">18</b><small>40-тан 18</small></article><article><span>ОҚУ УАҚЫТЫ</span><b>2с 15м</b><small>Осы аптада</small></article></div>
+      <article class="achievement"><span class="achievement-icon">✺</span><div><p class="eyebrow">СОҢҒЫ ЖЕТІСТІК</p><h3>Қолтаңбаң айқын!</h3><p>Үш жаттығуда 90%-дан жоғары дәлдікке жеттің.</p></div><span class="badge">Жаңа белгі</span></article>
+    </section>
+  </main>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>
